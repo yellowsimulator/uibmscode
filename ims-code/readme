@@ -1,0 +1,23 @@
+
+channels, bearings and faults:
+Experiment 1:
+-------------
+bearing 1: channel 0,1
+bearing 2: channel 2,3
+bearing 3: channel 4,5 (inner race defect)
+bearing 4: channel 6,7 (roller element defect)
+
+
+Experiment 2:
+-------------
+bearing 1: channel 0 (outer race defect)
+bearing 2: channel 1
+bearing 3: channel 2
+bearing 4: channel 3
+
+Experiment 3:
+-------------
+bearing 1: channel 0
+bearing 2: channel 1
+bearing 3: channel 2 (outer race defect)
+bearing 4: channel 3

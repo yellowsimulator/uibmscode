@@ -15,7 +15,7 @@ from scipy.integrate import simps
 from sklearn import preprocessing
 from peak_detect import *
 #from get_data import *
-#from data_processing import *
+#from data_processing importfault_freqs = [236.4, 296.8, 280.4] *
 
 
 

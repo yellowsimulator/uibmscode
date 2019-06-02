@@ -7,8 +7,8 @@ import pandas as pd
 from glob import glob
 import scipy.stats
 from multiprocessing import Pool
-
 from signal_processing_method import *
+from wavelet_transform import *
 
 
 def get_date_from_file(file):
@@ -43,94 +43,9 @@ def get_all_dates(exp_numb):
         return datetime
 
 
-def get_all_data(exp_numb):
-    all_files = get_experiment_data(exp_numb)
-    with Pool() as p:
-        data = p.map(get_dataframe, all_files)
-        return data
-
-
-def get_all_iqrs(files):
-    all_data = []
-    with Pool() as p:
-        iqrs = p.map(get_iqr, all_data)
-
-
-def get_iqr(time_series):
-    """
-    Return the inter quantile range.
-    If an error occurs, the string
-    "erro will be return".
-    Argument:
-        time_series: the time series data
-    Return:
-        iqr
-    """
-    try:
-        iqr = scipy.stats.iqr(time_series)
-        return iqr
-    except Exception as e:
-        print("Error in function 'get_iqr': ", e)
-        return "error"
-
-
-def get_all_faultes(exp_numb, channel):
-    all_amps = []
-    all_data = []
-    fault_freqs = [236.4, 296.8, 280.4]
-    all_files = get_experiment_data(exp_numb)
-    all_dates = get_all_dates(exp_numb)
-    #with Pool() as p
-        #all_data = [p.apply(get_experiment_and_channel_data, args=(channel, file)) for file in all_files]
-    for file in all_files:
-        data = get_experiment_and_channel_data(channel,file)
-        all_data.append(data)
-    for k, data in enumerate(all_data):
-        print(" processing data #{} for channel {}".format(k+1, channel))
-        amp = get_sum_amps(data,fault_freqs)
-        all_amps.append(amp)
-    df = pd.DataFrame({"timestamp": all_dates, "fault": all_amps})
-    df.to_csv("amp_experiment{}_channel{}.csv".format(exp_numb, channel))
-    print("amp_experiment{}_channel{}.csv".format(exp_numb, channel))
-    #return all_amps
-
-def get_sum_amps(data,fault_freqs):
-    with Pool() as p:
-        amps = sum([p.apply(get_fault_frequency, args=(data,freq)) for freq in fault_freqs])
-        return amps
-
-
-
-
-
-
-def health_index(faults_amps, iqr):
-    """
-    This function return the health index.
-    If an error occured, the string "error"
-    will be return
-    Arguments:
-        faults_amps: a dictionary of bearing faults
-                     amplitude of the form {"bpfo":0.4,
-                     "bpfi":2., ...}
-        iqr: the inter quantile range of a time series
-    Return:
-        H: the health index of a time series.
-    """
-    try:
-        H = iqr*sum(faults_amps.values())
-        return H
-    except Exception as e:
-        priint("Error in function 'health_index': ", e)
-        return "error"
-
-
 def get_all_files(path):
     """
-    This function retirns all files from
-    a directory specified by a path.
-    If an erro occurred the string "error"
-    will be return and an error will be printed.
+    Return all files from a directory specified by a path.
     Argument:
         path: directory path
     Return:
@@ -142,14 +57,11 @@ def get_all_files(path):
         return files
     except Exception as e:
         print("Error in function 'get_all_files': ", e)
-        return "error"
 
 
 def get_dataframe(path):
     """
     Return a dataframe from.
-    If an erro occurs return the
-    string "error".
     Argument:
         path: file path
     Return:
@@ -160,86 +72,109 @@ def get_dataframe(path):
         return dataframe
     except Exception as e:
         print("Error in function 'get_dataframe': ", e)
-        return "error"
 
 
 def get_experiment_data(exp_numb):
     """
     Return all file for a given experiment.
     Arguments:
-        exp_numb: experiment number: intenger 1,2
-        or 3
+        exp_numb: experiment number: intenger 1,2or 3
     Return:
         all_files: all files
     """
-    experiments = {"1": "1st_test",
-                   "2": "2nd_test",
-                   "3": "3rd_test"}
+    experiments = {"1": "1st_test", "2": "2nd_test", "3": "3rd_test"}
     experiment = experiments["{}".format(exp_numb)]
-
-    main_path = os.path.abspath("../data/IMS/{}".format(experiment))
+    main_path = os.path.abspath("../data/{}".format(experiment))
     try:
         all_files = get_all_files(main_path)
-
         return all_files
     except Exception as e:
         print("Error in function 'get_experiment_data': ", e)
-        return "error"
 
 
-def get_bearing_data(file):
+def get_all_data_frames(exp_numb):
     """
-    Return data for a bearing.
-    channel = 0,1,3,4 for bearing 1,2,3,4
-    or channel = 0,1 bearing 1 axial and radial
-       channel = 2,3, bearing 2 axial and radial
-    similarly for bearing 3 and 4.
-    Argument
-        file: path to file
-        channel: channel number
+    Return all dataframes for a given experiment.
+    Argument:
+    --------
+    exp_numb
+        experiment number (1,2 or 3)
+    Return:
+    ------
+    all_data_frames:
+        all dataframes pertaining to an experiment
     """
-    channel = 0 # channel must be an input argument to the function
-    data_frame = get_dataframe(file)
     try:
-        return data_frame[channel].values
+        all_paths = get_experiment_data(exp_numb)
+        with Pool() as p:
+            all_data_frames = p.map(get_dataframe, all_paths)
+            return all_data_frames
     except Exception as e:
-        print("Error in function 'get_bearing_data': ", e)
+        print("Error in function 'get_all_data_frames': ", e)
         return "error"
 
 
-
-def generate_iqr_csv(channels,exp_numb):
-    for channel in channels:
-        print("processing channel {}".format(channel+1))
-        all_dates = get_all_dates(exp_numb)
-        all_files = get_experiment_data(exp_numb)
-        for file in all_files:
-            data = get_dataframe(file)
-        with Pool() as p:
-            data = p.map(get_bearing_data, all_files)
-            iqrs = p.map(get_iqr, data)
-            df = pd.DataFrame({"timestamp": all_dates,"iqr": iqrs})
-            df.to_csv("iqr_experiment{}_channel{}.csv".format(exp_numb,
-                       channel+1))
+def get_channel_data(channel,data_frame):
+    """
+    Return the data for a given channel.
+    Argument:
+    --------
+    channel:
+        channel specified by 0,1,2,3 of up tp 7
+    data_frame:
+        the datframe containg the data
+    """
+    return data_frame[channel].values
 
 
-def get_experiment_and_channel_data(channel, file):
-    data_frame = get_dataframe(file)
-    data = data_frame[channel].values
-    return data
+def get_experiment_bearing_data(exp_numb, channel):
+    """
+    Return a specific bearing data.
+    Arguments:
+    ---------
+    exp_numb:
+        the experiment number (1,2 or 3)
+    channel:
+        it specifies the bearing (0,1,2,3, ...)
+    Return:
+    """
+    data_frames = get_all_data_frames(exp_numb)
+    with Pool() as p:
+        all_samples = [p.apply(get_channel_data,
+                args=(channel, data_frame)) for data_frame in data_frames]
+        return all_samples
 
 
-def main():
-    return -1
 
+def save_to_csv(destination_path, colums_arrays, columns_names):
+    """
+    Save data to acsv file, given a list of array and
+    list of columns names.
+    Arguments:
+    ---------
+    destination_path:
+        path to the csv file
+    colums_arrays:
+        a list containing arrays of values.
+        example [[0,1,1], [0.3, 0,4],...]
+    columns_names:
+        corresponding name for each array in colums_arrays:
+        example:["temperature", "humidity", ...]
+    """
+    dictionary_data = dict(zip(columns_names, colums_arrays))
+    data_frame = pd.DataFrame(dictionary_data)
+    data_frame.to_csv(destination_path,index=0)
 
 
 if __name__ == '__main__':
     fault_freqs = [236.4, 296.8, 280.4]
-    exp_numb = 2
-    channel = 0
-    for channel in [0,1,2,3]:
-        get_all_faultes(exp_numb, channel)
+
+
+
+
+
+
+
 
     #get_all_faultes(exp_numb, channel)
     #get_experiment_and_channel_data(exp_numb, channel)
