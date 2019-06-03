@@ -16,21 +16,21 @@ from signal_processing_method import *
 from statistics import *
 
 def main(exp_numb, channel, dispersion_index):
-    if os.path.isfile("test{}.csv".format(channel)):
-        os.remove("test{}.csv".format(channel))
+    if os.path.isfile("test{}_{}.csv".format(channel,dispersion_index)):
+        os.remove("test{}_{}.csv".format(channel,dispersion_index))
     samples = get_experiment_bearing_data(exp_numb, channel)
     health_indexes = [get_all_health_index(dispersion_index, samples)]
     columns_names = ["health_index"]
-    destination_path = "test{}.csv".format(channel)
+    destination_path = "test{}_{}.csv".format(channel,dispersion_index)
     save_to_csv(destination_path, health_indexes, columns_names)
 
-    health_index_array = pd.read_csv("test{}.csv".format(channel))["health_index"].values
+    #health_index_array = pd.read_csv("test{}.csv".format(channel))["health_index"].values
 
-    coeffs = get_all_health_index_coefficients(health_index_array)
-    indexes = range(len(health_index_array))
+    #coeffs = get_all_health_index_coefficients(health_index_array)
+    #indexes = range(len(health_index_array))
     #initialise
-    plt.plot(coeffs)
-    plt.show()
+    #plt.plot(coeffs)
+    #plt.show()
 
 
 
@@ -48,7 +48,7 @@ def main(exp_numb, channel, dispersion_index):
 
 if __name__ == '__main__':
 
-    exp_numb = 2; channel = 0; dispersion_index = "iqr"
+    exp_numb = 2; channel = 0; dispersion_index = "variance"
     main(exp_numb, channel, dispersion_index)
 
 

@@ -7,8 +7,10 @@ import pandas as pd
 from glob import glob
 import scipy.stats
 from multiprocessing import Pool
+import matplotlib.pyplot as plt
 from signal_processing_method import *
 from wavelet_transform import *
+
 
 
 def get_date_from_file(file):
@@ -16,9 +18,8 @@ def get_date_from_file(file):
     return the date extension from a
     file.
     Argument:
-        file: a file name.
-    Return:
-        datetime of the form yyyy-mm-dd hh:mm:ss
+    file: a file name.
+    Return: datetime of the form yyyy-mm-dd hh:mm:ss
     """
     try:
         datetime = file.split("/")[-1]
@@ -35,7 +36,8 @@ def get_all_dates(exp_numb):
     """
     Return all dates from a file.
     Argument:
-        exp_numb: the experiment number.
+    --------
+    exp_numb: the experiment number.
     """
     all_files = get_experiment_data(exp_numb)
     with Pool() as p:
@@ -46,11 +48,11 @@ def get_all_dates(exp_numb):
 def get_all_files(path):
     """
     Return all files from a directory specified by a path.
-    Argument:
-        path: directory path
-    Return:
-        files: all files in the directory
-        specified by path argument.
+    Arguments:
+    --------
+    path: directory path
+    Return: files: all files in the directory
+            specified by path argument.
     """
     try:
         files = glob("{}/*".format(path))
@@ -62,10 +64,8 @@ def get_all_files(path):
 def get_dataframe(path):
     """
     Return a dataframe from.
-    Argument:
-        path: file path
-    Return:
-        dataframe: a pandas dataframe
+    Argument: path: file path
+    Return: dataframe: a pandas dataframe
     """
     try:
         dataframe = pd.read_csv(path,header=None,delim_whitespace=True)
@@ -77,10 +77,10 @@ def get_dataframe(path):
 def get_experiment_data(exp_numb):
     """
     Return all file for a given experiment.
-    Arguments:
-        exp_numb: experiment number: intenger 1,2or 3
-    Return:
-        all_files: all files
+    Arguments: exp_numb: experiment number: intenger 1,2or 3
+    ---------
+    Return: all_files: all files
+    ------
     """
     experiments = {"1": "1st_test", "2": "2nd_test", "3": "3rd_test"}
     experiment = experiments["{}".format(exp_numb)]
@@ -97,12 +97,10 @@ def get_all_data_frames(exp_numb):
     Return all dataframes for a given experiment.
     Argument:
     --------
-    exp_numb
-        experiment number (1,2 or 3)
+    exp_numb: experiment number (1,2 or 3)
     Return:
     ------
-    all_data_frames:
-        all dataframes pertaining to an experiment
+    all_data_frames: all dataframes pertaining to an experiment
     """
     try:
         all_paths = get_experiment_data(exp_numb)
@@ -119,10 +117,8 @@ def get_channel_data(channel,data_frame):
     Return the data for a given channel.
     Argument:
     --------
-    channel:
-        channel specified by 0,1,2,3 of up tp 7
-    data_frame:
-        the datframe containg the data
+    channel: channel specified by 0,1,2,3 of up tp 7
+    data_frame: the datframe containg the data
     """
     return data_frame[channel].values
 
@@ -132,10 +128,8 @@ def get_experiment_bearing_data(exp_numb, channel):
     Return a specific bearing data.
     Arguments:
     ---------
-    exp_numb:
-        the experiment number (1,2 or 3)
-    channel:
-        it specifies the bearing (0,1,2,3, ...)
+    exp_numb: the experiment number (1,2 or 3)
+    channel: it specifies the bearing (0,1,2,3, ...)
     Return:
     """
     data_frames = get_all_data_frames(exp_numb)
@@ -154,20 +148,68 @@ def save_to_csv(destination_path, colums_arrays, columns_names):
     ---------
     destination_path:
         path to the csv file
-    colums_arrays:
-        a list containing arrays of values.
-        example [[0,1,1], [0.3, 0,4],...]
-    columns_names:
-        corresponding name for each array in colums_arrays:
-        example:["temperature", "humidity", ...]
+    colums_arrays: a list containing arrays of values.
+                  example [[0,1,1], [0.3, 0,4],...]
+    columns_names: corresponding name for each array in colums_arrays:
+                   example:["temperature", "humidity", ...]
     """
     dictionary_data = dict(zip(columns_names, colums_arrays))
     data_frame = pd.DataFrame(dictionary_data)
     data_frame.to_csv(destination_path,index=0)
 
 
+def validate_data(sample):
+    """
+    Validate samples based on their health
+    index.
+    Arguments:
+    ---------
+    sample: the sample containg signals.
+    """
+    for k, item in enumerate(sample):
+        try:
+            if k==0:
+                if sample[k] > sample[k+1]:
+                    sample.remove(sample[k])
+                    print("new list length {}".format(len(sample)))
+                    validate_data(sample)
+            elif (sample[k] < sample[k+1]) and (sample[k] < sample[k-1]):
+                sample.remove(sample[k])
+                print("new list length {}".format(len(sample)))
+                #print("new list {}".format(sample))
+                validate_data(sample)
+        except Exception as e:
+            print(sample)
+            break
+
+
+            #return sample
+
+
+
+
+
+
 if __name__ == '__main__':
     fault_freqs = [236.4, 296.8, 280.4]
+    #sample = [1, 0.5, 0.2, 1, 2.3, 0.1, 9.2]
+    sample = [1, 0.5, 0.6, 1, 2.3, 3.1, 9.2]
+    df = pd.read_csv("test0.csv")
+    #print("Original sample: ",sample)
+    #new_sample = sample.copy()
+    #print(new_sample)
+    #new_sample = validate_data(sample)
+    window1 = 5
+    window2 = 10
+    rolling_mean = df["health_index"].rolling(window=window1).mean()
+    rolling_mean2 = df["health_index"].rolling(window=window2).mean()
+    x = range(len(df))
+
+    plt.plot(x, df["health_index"], label='raw')
+    plt.plot(x, rolling_mean, label='window {}'.format(window1), color='orange')
+    plt.plot(x, rolling_mean2, label='window {}'.format(window2), color='magenta')
+    plt.legend(loc='upper left')
+    plt.show()
 
 
 
