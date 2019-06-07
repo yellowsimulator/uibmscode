@@ -8,8 +8,10 @@ from glob import glob
 import scipy.stats
 from multiprocessing import Pool
 import matplotlib.pyplot as plt
-from signal_processing_method import *
+from stldecompose import decompose, forecast
+from fft import *
 from wavelet_transform import *
+from getEnvelopeModels import get_envelope_models
 
 
 
@@ -194,19 +196,38 @@ if __name__ == '__main__':
     fault_freqs = [236.4, 296.8, 280.4]
     #sample = [1, 0.5, 0.2, 1, 2.3, 0.1, 9.2]
     sample = [1, 0.5, 0.6, 1, 2.3, 3.1, 9.2]
-    df = pd.read_csv("test0.csv")
+    df = pd.read_csv("test0_variance.csv")
+
     #print("Original sample: ",sample)
     #new_sample = sample.copy()
     #print(new_sample)
     #new_sample = validate_data(sample)
     window1 = 5
-    window2 = 10
+    window2 = 1
+    window_percent = (window2/len(df))*100
+    print(window_percent)
     rolling_mean = df["health_index"].rolling(window=window1).mean()
     rolling_mean2 = df["health_index"].rolling(window=window2).mean()
     x = range(len(df))
+    s = rolling_mean2.dropna().values
+    #s = df["health_index"].values
+    P = get_envelope_models(s)
+    q_u = list(map(P[0],range(0,len(s))))
+    q_l = list(map(P[1],range(0,len(s))))
+    decomp = decompose(q_u)
 
-    plt.plot(x, df["health_index"], label='raw')
-    plt.plot(x, rolling_mean, label='window {}'.format(window1), color='orange')
+    #plt.plot(s);plt.xlabel('x');plt.ylabel('y')
+    #plt.title('Upper and lower envelopes including all peaks and troughs')
+    #plt.hold(True)
+    #plt.plot(q_u)
+    #plt.plot(q_l)
+    #plt.grid(True)
+    #plt.hold(False)
+    decomp.plot()
+    plt.show()
+    exit()
+    #plt.plot(x, df["health_index"], label='raw')
+    #plt.plot(x, rolling_mean, label='window {}'.format(window1), color='orange')
     plt.plot(x, rolling_mean2, label='window {}'.format(window2), color='magenta')
     plt.legend(loc='upper left')
     plt.show()

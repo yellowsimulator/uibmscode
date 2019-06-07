@@ -4,13 +4,13 @@ Experiment 1:
 -------------
 bearing 1: channel 0,1
 bearing 2: channel 2,3
-bearing 3: channel 4,5 (inner race defect)
-bearing 4: channel 6,7 (roller element defect)
+bearing 3: channel 4,5 (inner race defect, "bpfi":296.8)
+bearing 4: channel 6,7 (roller element defect "rdf frequency":280.4)
 
 
 Experiment 2:
 -------------
-bearing 1: channel 0 (outer race defect)
+bearing 1: channel 0 (outer race defect, "bpfo":236.4)
 bearing 2: channel 1
 bearing 3: channel 2
 bearing 4: channel 3
@@ -21,3 +21,5 @@ bearing 1: channel 0
 bearing 2: channel 1
 bearing 3: channel 2 (outer race defect)
 bearing 4: channel 3
+
+fault_freqs = {"bpfo":236.4, "bpfi":296.8, "rdf":280.4}

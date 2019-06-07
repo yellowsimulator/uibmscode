@@ -16,6 +16,7 @@ from sklearn import preprocessing
 from peak_detect import *
 #from get_data import *
 #from data_processing importfault_freqs = [236.4, 296.8, 280.4] *
+#fault_freqs = {"bpfo":236.4, "bpfi":296.8, "rdf":280.4}
 
 
 

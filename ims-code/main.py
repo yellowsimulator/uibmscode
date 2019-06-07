@@ -6,23 +6,37 @@ functions implemented in other
 files are called here. It is the experimental lab.
 Refer to readme file for appropriate channel number
 """
-
+from scipy.fftpack import fft, ifft
+from pyhht.visualization import plot_imfs
+from tftb.processing import ShortTimeFourierTransform
 import numpy as np
 import pandas as pd
 import os
 import matplotlib.pyplot as plt
 from etl import *
-from signal_processing_method import *
+from fft import *
 from statistics import *
+from hht import get_imfs
+from getEnvelopeModels import get_envelope_models
+from peak_detect import detect_peaks
 
 def main(exp_numb, channel, dispersion_index):
     if os.path.isfile("test{}_{}.csv".format(channel,dispersion_index)):
         os.remove("test{}_{}.csv".format(channel,dispersion_index))
     samples = get_experiment_bearing_data(exp_numb, channel)
-    health_indexes = [get_all_health_index(dispersion_index, samples)]
-    columns_names = ["health_index"]
-    destination_path = "test{}_{}.csv".format(channel,dispersion_index)
-    save_to_csv(destination_path, health_indexes, columns_names)
+    sample = samples[0]
+    for j, sample in enumerate(samples):
+        print("processing sample {}".format(j+1))
+        imfs = get_imfs(sample)
+        m = len(imfs)
+        names = ["imf{}".format(k+1) for k in range(m)]
+        #d = dict(zip(names,imfs))
+        #df = pd.DataFrame(d)
+        save_to_csv("imfs/sample{}_imfs.csv".format(j+1),imfs, names )
+    #health_indexes = [get_all_health_index(dispersion_index, samples)]
+    #columns_names = ["health_index"]
+    #destination_path = "test{}_{}.csv".format(channel,dispersion_index)
+    #save_to_csv(destination_path, health_indexes, columns_names)
 
     #health_index_array = pd.read_csv("test{}.csv".format(channel))["health_index"].values
 
@@ -47,9 +61,63 @@ def main(exp_numb, channel, dispersion_index):
 
 
 if __name__ == '__main__':
+    k = 100
+    path = "imfs/sample{}_imfs.csv".format(k)
+    df = pd.read_csv(path)
+    #new_df = df.loc[:,"imf1":"imf4"]
+    #new_df.plot()
+    #plt.show()
+    #exit()
+    k = 6
+    #for k in range(1,9):
+    s = df["imf{}".format(k)].values
 
+    decomp = decompose(s)
+    seasonality = decomp.seasonal
+    peaks = detect_peaks(seasonality[:1000])
+    plt.plot(seasonality[:1000])
+    plt.show()
+    print(peaks)
+    print(seasonality[:1000][peaks])
+    exit()
+    #P = get_envelope_models(seasonality)
+    #Evaluate each model over the domain of (s)
+    #q_u = list(map(P[0],range(0,len(seasonality))))
+    #q_l = list(map(P[1],range(0,len(seasonality))))
+    #print(seasonality[:5000])
+    #exit()
+    #plt.plot(q_u)
+    #plt.show()
+    #N = len(seasonality)
+    #T = 1./N
+    #imfs = get_imfs(s)
+    #yf = fft(seasonality)
+    #xf = np.linspace(0.0, 1.0/(2.0*T), N//2)
+    #sampling_interval = 1./N
+    #freq = np.linspace(0.0, 1.0/(2.0*sampling_interval), N/2)
+    #plt.plot(xf, 2.0/N * np.abs(yf[0:N//2]))
+    #amp = 2.0/N * np.abs(yf[0:N//2])
+    #plt.plot(freq,amp )
+    #peaks = detect_peaks(amp)
+    #j = 1
+    #idx = list(peaks).index(peaks[j])
+    #corr_amp = amp[idx]
+
+    #print(peaks[j],"--",corr_amp)
+    #plt.grid()
+    #plt.show()
+    #plot_imfs(seasonality,imfs)
+    #plt.show()
+    #stft = ShortTimeFourierTransform(seasonality)
+    #print(stft)
+    #stft.run()
+    #stft.plot()
+
+    #plt.plot(imf)
+    #decomp.plot()
+    #plt.show()
     exp_numb = 2; channel = 0; dispersion_index = "variance"
-    main(exp_numb, channel, dispersion_index)
+    #main(exp_numb, channel, dispersion_index)
 
 
 
