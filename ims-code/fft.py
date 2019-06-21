@@ -117,19 +117,16 @@ def get_envelop_spectrum(accelaration):
 
 
 
-def get_fault_frequency(data,fault_freq):
+def get_fault_frequency(signal,fault_freq):
 	"""
 	"""
-	#freq_peaks,amp_peaks,freq,amp = get_peaks(data)
-	freq_peaks,amp_peaks = get_envelop_spectrum(data)
-	amp = amp_peaks
-	freq = freq_peaks
-	bpfi = list(filter(lambda f: round(f,0) == round(fault_freq,0) ,freq_peaks))
+	frequency,amplitude = get_envelop_spectrum(signal)
+	found_frequency = list(filter(lambda f: round(f,0) == round(fault_freq,0) ,freq_peaks))
 	bpfi_amp = []
-	if len(bpfi) == 1:
-		idx = list(freq).index(bpfi[0])
-		bpfi_amp = amp[idx]
-		return bpfi_amp
+	if len(found_frequency) == 1:
+		idx = list(frequency).index(found_frequency[0])
+		found_amplitude = amplitude[idx]
+		return found_amplitude
 	else:
 		return None
 

@@ -44,7 +44,7 @@ def get_all_dates(exp_numb):
     all_files = get_experiment_data(exp_numb)
     with Pool() as p:
         datetime = p.map(get_date_from_file, all_files)
-        return datetime
+        return all_files
 
 
 def get_all_files(path):
@@ -196,7 +196,7 @@ if __name__ == '__main__':
     fault_freqs = [236.4, 296.8, 280.4]
     #sample = [1, 0.5, 0.2, 1, 2.3, 0.1, 9.2]
     sample = [1, 0.5, 0.6, 1, 2.3, 3.1, 9.2]
-    df = pd.read_csv("test0_variance.csv")
+    df = pd.read_csv("test0.csv")
 
     #print("Original sample: ",sample)
     #new_sample = sample.copy()
@@ -215,7 +215,15 @@ if __name__ == '__main__':
     q_u = list(map(P[0],range(0,len(s))))
     q_l = list(map(P[1],range(0,len(s))))
     decomp = decompose(q_u)
-
+    trend = decomp.trend
+    plt.subplot(311)
+    plt.plot(s)
+    plt.subplot(312)
+    plt.xlabel("sample")
+    plt.ylabel("health index")
+    plt.plot(trend, color="orange")
+    #plt.subplot(313)
+    #plt.plot(decomp.seasonal)
     #plt.plot(s);plt.xlabel('x');plt.ylabel('y')
     #plt.title('Upper and lower envelopes including all peaks and troughs')
     #plt.hold(True)
@@ -223,7 +231,7 @@ if __name__ == '__main__':
     #plt.plot(q_l)
     #plt.grid(True)
     #plt.hold(False)
-    decomp.plot()
+    #decomp.plot()
     plt.show()
     exit()
     #plt.plot(x, df["health_index"], label='raw')
