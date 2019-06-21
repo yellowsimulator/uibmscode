@@ -121,8 +121,7 @@ def get_fault_frequency(signal,fault_freq):
 	"""
 	"""
 	frequency,amplitude = get_envelop_spectrum(signal)
-	found_frequency = list(filter(lambda f: round(f,0) == round(fault_freq,0) ,freq_peaks))
-	bpfi_amp = []
+	found_frequency = list(filter(lambda f: round(f,0) == round(fault_freq,0) ,frequency))
 	if len(found_frequency) == 1:
 		idx = list(frequency).index(found_frequency[0])
 		found_amplitude = amplitude[idx]
