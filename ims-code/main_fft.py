@@ -63,21 +63,29 @@ def forcing_frequency(samples,fault_freq):
             args=(signal, fault_freq)) for signal in samples]
         return tuples
 
-def save_bearing_trend():
-    fault_frequencies =  {"bpfi":296.8, "bpfo":236.4}
-    exp_numb = 2 # bpfo
+def save_bearing_trend(exp_numb):
+    fault_frequencies =  {"bpfi":296.8, "bpfo":236.4, "rdf":236.4}
+    #exp_numb = 2 # bpfo
     file_name = "experiment{}_bearing_fft_trend.csv".format(exp_numb)
     #output_path = "/Users/yapiachou/UiBergen/UiB-master/fig/{}".format(file_name)
 
-    samples1 = get_experiment_bearing_data(exp_numb, 0)
-    samples2 = get_experiment_bearing_data(exp_numb, 1)
-    samples3 = get_experiment_bearing_data(exp_numb, 2)
-    samples4 = get_experiment_bearing_data(exp_numb, 3)
-    fault_freq = fault_frequencies["bpfo"]
+    samples1 = get_experiment_bearing_data(exp_numb, 1)
+    print("processing bearing 1")
+    samples2 = get_experiment_bearing_data(exp_numb, 3)
+    print("processing bearing 2")
+    samples3 = get_experiment_bearing_data(exp_numb, 5)
+    print("processing bearing 3")
+    samples4 = get_experiment_bearing_data(exp_numb, 7)
+    print("processing bearing 4")
+    fault_freq = fault_frequencies["rdf"]
     bearing1 = forcing_frequency(samples1,fault_freq)
+    print("computing bearing 1 forcing frequency")
     bearing2 = forcing_frequency(samples2,fault_freq)
+    print("computing bearing 2 forcing frequency")
     bearing3 = forcing_frequency(samples3,fault_freq)
+    print("computing bearing 3 forcing frequency")
     bearing4 = forcing_frequency(samples4,fault_freq)
+    print("computing bearing 4 forcing frequency")
     d = {"amp1":bearing1,"amp2":bearing2,"amp3":bearing3,"amp4":bearing4}
     df = pd.DataFrame(d)
     df.to_csv(file_name)
@@ -86,25 +94,39 @@ def save_bearing_trend():
 def plot_bearing_fft_trend(file_name,exp_numb,out):
     output_path = "/Users/yapiachou/UiBergen/UiB-master/fig/{}".format(out)
     df = pd.read_csv(file_name)
-    trend1 = decompose(df["amp1"].values).trend
-    trend2 = decompose(df["amp2"].values).trend
-    trend3 = decompose(df["amp3"].values).trend
-    trend4 = decompose(df["amp4"].values).trend
-    plt.plot(trend1)
-    plt.plot(trend2)
-    plt.plot(trend3)
-    plt.plot(trend4)
+    plt.plot(df["amp1"].values)
+    plt.plot(df["amp2"].values)
+    plt.plot(df["amp3"].values)
+    plt.plot(df["amp4"].values)
+    #plt.show()
+    #exit()
+    #trend1 = decompose(df["amp1"].values).trend
+    #trend2 = decompose(df["amp2"].values).trend
+    #trend3 = decompose(df["amp3"].values).trend
+    #trend4 = decompose(df["amp4"].values).trend
+    #plt.plot(trend1)
+    #plt.plot(trend2)
+    #plt.plot(trend3)
+    #plt.plot(trend4)
     plt.xlabel("Samples")
     plt.ylabel("Amplitude")
-    plt.title("Trend of BPFO amplitude for experiment {}".format(exp_numb))
-    plt.legend(["Bearing1 (Failed bearing)","Bearing2","Bearing3","Bearing4"])
+    plt.title("BPFO amplitude for experiment {}".format(exp_numb))
+    plt.legend(["Bearing1","Bearing2","Bearing3","Bearing4"])
     plt.savefig(output_path)
+    #plt.show()
 
 
 
 if __name__ == '__main__':
     exp_numb = 2
-    out = "experiment{}_bearing_fft_trend.png".format(exp_numb)
+    #path = "../data/3rd_test"
+    #all_files = get_all_files(path)
+    #all_files.sort()
+    #print(all_files)
+    #print(get_all_dates(exp_numb)[321])
+    #exit()
+    #save_bearing_trend(exp_numb)
+    out = "experiment{}_bearing_fft_amp.png".format(exp_numb)
     file_name = "experiment{}_bearing_fft_trend.csv".format(exp_numb)
     plot_bearing_fft_trend(file_name,exp_numb,out)
     #save_bearing_trend()

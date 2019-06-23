@@ -42,6 +42,7 @@ def get_all_dates(exp_numb):
     exp_numb: the experiment number.
     """
     all_files = get_experiment_data(exp_numb)
+    all_files.sort()
     with Pool() as p:
         datetime = p.map(get_date_from_file, all_files)
         return all_files
@@ -58,6 +59,7 @@ def get_all_files(path):
     """
     try:
         files = glob("{}/*".format(path))
+        files.sort()
         return files
     except Exception as e:
         print("Error in function 'get_all_files': ", e)
@@ -89,6 +91,7 @@ def get_experiment_data(exp_numb):
     main_path = os.path.abspath("../data/{}".format(experiment))
     try:
         all_files = get_all_files(main_path)
+        all_files.sort()
         return all_files
     except Exception as e:
         print("Error in function 'get_experiment_data': ", e)
@@ -106,6 +109,7 @@ def get_all_data_frames(exp_numb):
     """
     try:
         all_paths = get_experiment_data(exp_numb)
+        all_paths.sort()
         with Pool() as p:
             all_data_frames = p.map(get_dataframe, all_paths)
             return all_data_frames

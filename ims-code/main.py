@@ -103,6 +103,7 @@ if __name__ == '__main__':
 
     exp_numb = 2; channel = 0; dispersion_index = "iqr"
     samples = get_experiment_bearing_data(exp_numb, channel)
+    
 
     #k = 500
     k = 100
