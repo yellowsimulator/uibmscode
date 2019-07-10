@@ -93,7 +93,7 @@ def get_fft(signal,period,sampling_interval):
     one_side_freq = two_side_freq[range(int(signal_length/2))]
     yf = fft(signal)
     freq = np.linspace(0.0, 1.0/(2.0*sampling_interval), signal_length/2)
-    amplitude = 2.0/signal_length * np.abs(yf[:signal_length//2])
+    amplitude = 2.0/signal_length * np.abs(yf[:signal_length//2])*9.81
     amplitude[0] = 0
     return freq,amplitude
 
