@@ -67,11 +67,18 @@ def rul(i):
     print(b)
     k = (1./3)*t1**3+b*t1
     E = Ei(1)-Ei(i)
-    coeff = [1./3,0,b,-k-E]
+
+    a0 = -k-E
+    coeff = [1./3,0,b,a0]
     roots = np.roots(coeff)
     tf = roots[-1]
+    print("E1",Ei(1))
+    print("E2",Ei(2))
+    print("k",k)
+    print("a0",a0)
     print("Energy:",E)
     print("failing time:",t[-1])
+
 
     print(roots)
 
@@ -102,6 +109,15 @@ def plot_trend():
 
 if __name__ == '__main__':
     i = 4
+    t,trend = get_trend(i)
+    b = trend[-1]
+    t = 9840.0000357
+    t1 = 9840.
+    E = Ei(1)-Ei(4)
+    A = (1./3)*t**3 + b*t - (1./3)*t1**3 - b*t1 - E
+    print(A)
+    exit()
+
     rul(i)
 
 
