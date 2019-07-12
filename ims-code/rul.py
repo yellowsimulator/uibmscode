@@ -17,6 +17,8 @@ from keras.layers import LSTM
 
 
 
+
+
 from etl import *
 def main():
     exp_numb = 2
@@ -58,18 +60,29 @@ def Ei(i):
 
 
 def rul(i):
+    #a = 0.2
+    A = least_square(i)
+    a = np.abs(A[0])
+
+    #print(A[0])
+    #print(np.abs(A[0]))
     t,trend = get_trend(i)
     t1 = t[-1]
     if i == 1:
-        b = trend[0]
+        b = trend[0]-a*t1
     else:
-        b = trend[-1]
-    print(b)
-    k = (1./3)*t1**3+b*t1
+        b = trend[-1]-a*t1
+    #print(b)
+
+    #k = (1./3)*t1**3+b*t1
+    k = a*(1./2)*t1**2+b*t1
     E = Ei(1)-Ei(i)
 
     a0 = -k-E
-    coeff = [1./3,0,b,a0]
+    #coeff = [1./3,0,b,a0]
+    coeff = [a*(1./2),b,a0]
+
+    #coeff = [A[0]*(1./2),b,a0]
     roots = np.roots(coeff)
     tf = roots[-1]
     print("E1",Ei(1))
@@ -102,22 +115,39 @@ def plot_trend():
     plt.show()
 
 
+def least_square(i):
+    xdata, ydata = get_trend(i)
+    x0 = np.zeros(len(xdata))
+    sigma = np.array([1. for _ in range(len(x0))])
+    #coeff = optimization.leastsq(func,x0,args=(xdata,ydata))
+    result = optimization.curve_fit(func,xdata,ydata)
+    coeff = list(result[0])
+    #print("before",coeff)
+    coeff.reverse()
+    #print("after",coeff)
+
+    return coeff
+
+def func(t,a,b):
+    return a*t + b
+
 
 
 
 
 
 if __name__ == '__main__':
-    i = 4
-    t,trend = get_trend(i)
-    b = trend[-1]
-    t = 9840.0000357
-    t1 = 9840.
-    E = Ei(1)-Ei(4)
-    A = (1./3)*t**3 + b*t - (1./3)*t1**3 - b*t1 - E
-    print(A)
-    exit()
-
+    i = 1
+    #plot_trend()
+    #t,trend = get_trend(i)
+    #b = trend[-1]
+    #t = 9840.0000357
+    #t1 = 9840.
+    #E = Ei(1)-Ei(4)
+    #A = (1./3)*t**3 + b*t - (1./3)*t1**3 - b*t1 - E
+    #print(A)
+    #exit()
+    #least_square(i)
     rul(i)
 
 
