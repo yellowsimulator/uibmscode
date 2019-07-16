@@ -43,7 +43,7 @@ plot_imfs(x, imfs, t)
 #plt.title("b)", position=(0.9, 0.8))
 #plt.legend(loc="best")
 
-plt.savefig(path)
+#plt.savefig(path)
 #plt.show()
 
 
