@@ -14,6 +14,9 @@ from keras.layers.convolutional import Conv1D
 from keras.layers.convolutional import MaxPooling1D
 from keras.layers import Flatten
 from keras.layers import LSTM
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.pipeline import make_pipeline
+from sklearn.linear_model import Ridge
 
 
 
@@ -108,7 +111,7 @@ def plot_trend():
 
     t1 = t[-1]
     plt.axvline(t1, linestyle='--', color='black')
-    plt.xlim([0,15000])
+    #plt.xlim([0,15000])
     plt.xlabel("Time in Minute")
     plt.ylabel("BPFO amplitude")
     plt.legend(["bearing1","bearing2","bearing3","bearing4","Failure time for bearing1"])
@@ -117,6 +120,8 @@ def plot_trend():
 
 def least_square(i):
     xdata, ydata = get_trend(i)
+    lim = 0
+    xdata, ydata = xdata[lim:], ydata[lim:]
     x0 = np.zeros(len(xdata))
     sigma = np.array([1. for _ in range(len(x0))])
     #coeff = optimization.leastsq(func,x0,args=(xdata,ydata))
@@ -124,12 +129,49 @@ def least_square(i):
     coeff = list(result[0])
     #print("before",coeff)
     coeff.reverse()
-    #print("after",coeff)
+    print("after",coeff)
 
     return coeff
 
 def func(t,a,b):
-    return a*t + b
+    return a*np.exp(t) + b
+
+
+def plot_trendi(i):
+    xdata, ydata = get_trend(i)
+    grad = np.gradient(ydata)
+    plt.plot(xdata,ydata)
+    #plt.plot(xdata,grad)
+    plt.xlabel("Time in minute")
+    plt.ylabel("Trend amplitude")
+    plt.title("BPFO amplitude's trend for bearing {}".format(i))
+    plt.show()
+
+def sklearn_linear_regression(i):
+    X,Y = get_trend(i)
+    X = X.reshape(-1,1)
+    colors = ["red","green","orange"]
+    poly = PolynomialFeatures(p).fit(X,Y)
+    for count, degree in enumerate([2,3,4]):
+        model = make_pipeline(PolynomialFeatures(degree), Ridge())
+        model.fit(X,Y)
+        y_plot = model.predict(X)
+        score = round(model.score(X,Y),2)
+        coeff = model.coef_
+        print(coeff)
+        plt.plot(X,y_plot,color=colors[count],label="degree {} score: {}".format(degree,score))
+    plt.plot(X,Y,label="real",color="blue")
+    plt.legend(loc="best")
+    #score = reg.score(X,Y)
+    #coeff = poly.get_params()
+    #print("score: ",score)
+    #print("coeff: ",coeff)
+    #pred = poly.predict(X)
+    #plt.plot(X,pred)
+    #plt.plot(X,Y)
+    #plt.legend(["pred","real"])
+    plt.show()
+
 
 
 
@@ -138,7 +180,9 @@ def func(t,a,b):
 
 if __name__ == '__main__':
     i = 1
-    #plot_trend()
+    p = 2
+    #sklearn_linear_regression(i)
+    plot_trend()
     #t,trend = get_trend(i)
     #b = trend[-1]
     #t = 9840.0000357
@@ -148,7 +192,7 @@ if __name__ == '__main__':
     #print(A)
     #exit()
     #least_square(i)
-    rul(i)
+    #rul(i)
 
 
 
