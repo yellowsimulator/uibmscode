@@ -17,10 +17,11 @@ import matplotlib.pyplot as plt
 from etl import *
 from fft import *
 from statistics import *
-from hht import get_imfs
+from hht import get_imfs, plot_imf
 from getEnvelopeModels import get_envelope_models
 from peak_detect import detect_peaks
 from wavelet_transform import *
+
 
 def main(exp_numb, channel, dispersion_index):
     #if os.path.isfile("test{}_{}.csv".format(channel,dispersion_index)):
@@ -103,41 +104,47 @@ if __name__ == '__main__':
 
     exp_numb = 2; channel = 0; dispersion_index = "iqr"
     samples = get_experiment_bearing_data(exp_numb, channel)
-    
 
-    #k = 500
-    k = 100
+
+    k = 602
+    #k = 100
     sample = samples[k]
-    plot_wavelet(sample)
-    exit()
+    #plot_imf(sample)
+    #exit()
+    #plot_wavelet(sample)
+    #exit()
     path = "../data/imfs/sample{}_imfs.csv".format(k)
     df = pd.read_csv(path)
     #new_df = df.loc[:,"imf1":"imf4"]
     #new_df.plot()
     #plt.show()
     #exit()
-    k = 6
+    j = 5
     #for k in range(1,9):
-    s = df["imf{}".format(k)].values
+    s = df["imf{}".format(j)].values
 
     decomp = decompose(s)
     seasonality = decomp.seasonal
-    lim = 10000
+    lim = 5000
+    t1 = np.linspace(0,1, len(s))
     t = np.linspace(0,1, lim)
     #peaks = detect_peaks(seasonality[:1000])
     plt.subplot(311)
+    plt.title("Pulses extraction by EMD followed by STL")
     #plt.title("Hilbert Huang transform for burst identification")
-    plt.ylabel("Amplitude")
-    plt.plot(t,sample[:lim])
+    plt.ylabel("Input signal")
+    plt.plot(t1,sample[:])
     plt.subplot(312)
-    plt.plot(t,s[:lim])
+    plt.ylabel("fifth IMF")
+    plt.plot(t1,s[:])
     #plt.title("Short and hight frequency burst")
     ##plt.ylabel("Amplitude")
     #plt.plot(t2, np.cos(2*np.pi*t2), color='tab:orange', linestyle='--')
     plt.subplot(313)
-    plt.plot(t,seasonality[:lim])
+    plt.ylabel("Pulses")
+    plt.plot(t[:lim],seasonality[:lim])
 
-    plt.xlabel("Time")
+    plt.xlabel("Time in second")
 
     plt.show()
     exit()
@@ -178,7 +185,7 @@ if __name__ == '__main__':
     #stft.plot()
 
     #plt.plot(imf)
-    decomp.plot()
+    #pythodecomp.plot()
     plt.show()
 
     #main(exp_numb, channel, dispersion_index)
