@@ -10,6 +10,17 @@ def get_high_low_freq(data):
     return cA, cD
 
 
+def get_wavelet(signal,k):
+    """
+    Returns the low (cA) and hight (cD) frequency
+    computed from the discrete wavelet Transform
+    """
+    cA, cD = pywt.dwt(signal, "db{}".format(k))
+    return cA, cD
+
+
+
+
 
 
 

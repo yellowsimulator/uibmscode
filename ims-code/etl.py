@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 from stldecompose import decompose, forecast
 from fft import *
 from wavelet_transform import *
-from getEnvelopeModels import get_envelope_models
+#from getEnvelopeModels import get_envelope_models
 
 
 
