@@ -1,4 +1,7 @@
 import numpy as np
+from mpl_toolkits import mplot3d
+import numpy as np
+import matplotlib.pyplot as plt
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.stats import iqr
@@ -26,9 +29,8 @@ def compute_ca_cd_and_save(exp_numb,channel,k):
     cD_iqr_list = []
 
 
-def process_all_bearing():
+def process_all_bearing(k):
     exp_numb = 2
-    k = 10
     for channel in [0,1,2,3]:
         compute_ca_cd_and_save(exp_numb,channel,k)
 
@@ -90,7 +92,7 @@ def plot_temporal_feature(k,save=True):
 
 
 def create_svm_data(k):
-
+    print("working")
     path1 = "../data/wavelet/bearing1_debauchies_{}_iqr.csv".format(k)
     path2 = "../data/wavelet/bearing2_debauchies_{}_iqr.csv".format(k)
     path3 = "../data/wavelet/bearing3_debauchies_{}_iqr.csv".format(k)
@@ -105,6 +107,7 @@ def create_svm_data(k):
     df = df_temp2.append(df4)
     path = "../data/wavelet/bearing_debauchies_{}_iqr.csv".format(k)
     df.to_csv(path,index=0)
+    print("done")
 
 
 def plot_tst(k):
@@ -131,6 +134,54 @@ def plot_tst(k):
     plt.show()
     #To learn more about semantic completion, see https://tabnine.com/semantic.plt.show()
 
+def d3plot():
+    fig = plt.figure()
+    dk = 20
+    path = "../data/wavelet/bearing_debauchies_{}_iqr.csv".format(dk)
+    df = pd.read_csv(path)
+    m = 983
+    bearing1 = df.loc[:m,"cA_iqr":"cD_iqr"].values
+    bearing3 = df.loc[2*m+1:3*m-1,"cA_iqr":"cD_iqr"].values
+    bearing4 = df.loc[3*m+1:4*m-1,"cA_iqr":"cD_iqr"].values
+    bearing2 = df.loc[m+1:2*m-1,"cA_iqr":"cD_iqr"].values
+    X_train = df.loc[m+1:4*m-1,"cA_iqr":"cD_iqr"].values
+    xdata = bearing1[:, 0]
+    ydata =  bearing1[:, 1]
+    ax = plt.axes(projection='3d')
+    zdata = np.linspace(0, len(bearing1[:, 0]),len(bearing1[:, 0]))
+
+    xdata2 = bearing2[:, 0]
+    ydata2 =  bearing2[:, 1]
+    zdata2 = np.linspace(0, len(bearing2[:, 0]),len(bearing2[:, 0]))
+
+    xdata3 = bearing3[:, 0]
+    ydata3 =  bearing3[:, 1]
+    zdata3 = np.linspace(0, len(bearing3[:, 0]),len(bearing3[:, 0]))
+
+    xdata4 = bearing4[:, 0]
+    ydata4 =  bearing4[:, 1]
+    zdata4 = np.linspace(0, len(bearing4[:, 0]),len(bearing4[:, 0]))
+
+    ax.scatter3D(xdata, ydata, zdata,color="red");
+    ax.scatter3D(xdata2, ydata2, zdata2,color="green");
+    ax.scatter3D(xdata3, ydata3, zdata3,color="blue");
+    ax.scatter3D(xdata4, ydata4, zdata4,color="yellow");
+
+    ax.set_xlim(0,max(xdata))
+    ax.set_ylim(0,max(ydata))
+    ax.set_zlim(0,max(zdata))
+    ax.set_xlabel("High frequency feature")
+    ax.set_ylabel("Low frequency feature")
+    ax.set_zlabel("Time in minute")
+    plt.show()
+
+
 if __name__ == '__main__':
-    k = 10
-    plot_data(k)
+    d3plot()
+    #k = 30
+    K = [2,3,4,6,7,8,9,11,12,13,14,16,17,18,19,21,22,23,24,25,26,27,28,29]
+
+    #process_all_bearing(k)
+    #create_svm_data(k)
+    #process_all_bearing()
+    #plot_data(k)

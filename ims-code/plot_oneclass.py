@@ -16,10 +16,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.font_manager
 from sklearn import svm
-
+dk = 30
 xx, yy = np.meshgrid(np.linspace(0, 1, 500), np.linspace(0, 0.5, 500))
 # Generate train data
-path = "../data/wavelet/bearing_debauchies_{}_iqr.csv".format(10)
+path = "../data/wavelet/bearing_debauchies_{}_iqr.csv".format(dk)
 df = pd.read_csv(path)
 m = 983
 X_train = df.loc[m+1:4*m-1,"cA_iqr":"cD_iqr"].values
@@ -43,7 +43,7 @@ plt.contourf(xx, yy, Z, levels=np.linspace(Z.min(), 0, 7), cmap=plt.cm.PuBu)
 a = plt.contour(xx, yy, Z, levels=[0], linewidths=2, colors='green')
 plt.contourf(xx, yy, Z, levels=[0, Z.max()], colors='white')
 
-s = 20
+s = 30
 
 b2 = plt.scatter(X_test[:, 0], X_test[:, 1], c='r', s=s,edgecolors='k')
 b1 = plt.scatter(X_train[:, 0], X_train[:, 1], s=s, edgecolors='k')
@@ -55,8 +55,10 @@ b5 = plt.scatter(bearing4[:, 0], bearing4[:, 1], c='orange', s=s)
 plt.axis('tight')
 plt.xlim((0, 1))
 plt.ylim((0, 0.5))
-plt.xlabel("Frequency feature health index")
-plt.ylabel("Temporal feature health index")
+#plt.xlabel("Frequency feature health index")
+#plt.ylabel("Temporal feature health index")
+plt.xlabel("Low frequency feature health index")
+plt.ylabel("High frequency feature health index")
 plt.legend([a.collections[0], b2,b3,b4,b5],
            ["learned frontier", "Bearing1",
             "Bearing2", "Bearing3", "Bearing4"],
