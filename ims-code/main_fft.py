@@ -6,7 +6,7 @@ import numpy as np
 from fft import *
 from etl import *
 from sklearn.svm import SVR
-from fbprophet import Prophet
+#from fbprophet import Prophet
 
 #
 def plot_frequency_spectrum(sample, output_file, channel):
@@ -68,20 +68,22 @@ def forcing_frequency(samples,fault_freq):
         return tuples
 
 def save_bearing_trend(exp_numb):
-    fault_frequencies =  {"bpfi":296.8, "bpfo":236.4, "rdf":236.4}
+    fault_frequencies =  {"bpfi":296.8, "rdf":236.4,"bpfo":236.4}
+
     #exp_numb = 2 # bpfo
-    file_name = "experiment{}_bearing_fft_trend.csv".format(exp_numb)
+    file_name = "experiment1_fft/experiment{}_bearing_fft_trend.csv".format(exp_numb)
     #output_path = "/Users/yapiachou/UiBergen/UiB-master/fig/{}".format(file_name)
 
-    samples1 = get_experiment_bearing_data(exp_numb, 1)
+    samples1 = get_experiment_bearing_data(exp_numb, 0)
     print("processing bearing 1")
-    samples2 = get_experiment_bearing_data(exp_numb, 3)
+    exit()
+    samples2 = get_experiment_bearing_data(exp_numb, 2)
     print("processing bearing 2")
-    samples3 = get_experiment_bearing_data(exp_numb, 5)
+    samples3 = get_experiment_bearing_data(exp_numb, 4)
     print("processing bearing 3")
-    samples4 = get_experiment_bearing_data(exp_numb, 7)
+    samples4 = get_experiment_bearing_data(exp_numb, 6)
     print("processing bearing 4")
-    fault_freq = fault_frequencies["rdf"]
+    fault_freq = fault_frequencies["bpfi"]
     bearing1 = forcing_frequency(samples1,fault_freq)
     print("computing bearing 1 forcing frequency")
     bearing2 = forcing_frequency(samples2,fault_freq)
@@ -181,14 +183,15 @@ def plot_bearing_fft_trend(file_name,exp_numb,out):
 
 
 if __name__ == '__main__':
-    exp_numb = 2
+    exp_numb = 1
     #path = "../data/3rd_test"
     #all_files = get_all_files(path)
     #all_files.sort()
     #print(all_files)
     #print(get_all_dates(exp_numb)[533])
     #exit()
-    #save_bearing_trend(exp_numb)
+    save_bearing_trend(exp_numb)
+    exit()
     out = "experiment{}_bearing_fft_trend.png".format(exp_numb)
     file_name = "experiment{}_bearing_fft_trend.csv".format(exp_numb)
     plot_bearing_fft_trend(file_name,exp_numb,out)
