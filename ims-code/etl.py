@@ -45,7 +45,7 @@ def get_all_dates(exp_numb):
     all_files.sort()
     with Pool() as p:
         datetime = p.map(get_date_from_file, all_files)
-        return all_files
+        return datetime
 
 
 def get_all_files(path):
@@ -139,17 +139,10 @@ def get_experiment_bearing_data(exp_numb, channel):
     Return:
     """
     data_frames = get_all_data_frames(exp_numb)
-    all_samples = []
-    for data_frame in data_frames:
-        data = get_channel_data(channel,data_frame)
-        all_samples.append(data)
-    """
-    #It works for not so large data
     with Pool() as p:
         all_samples = [p.apply(get_channel_data,
                 args=(channel, data_frame)) for data_frame in data_frames]
-    """
-    return all_samples
+        return all_samples
 
 
 

@@ -76,7 +76,6 @@ def save_bearing_trend(exp_numb):
 
     samples1 = get_experiment_bearing_data(exp_numb, 0)
     print("processing bearing 1")
-    exit()
     samples2 = get_experiment_bearing_data(exp_numb, 2)
     print("processing bearing 2")
     samples3 = get_experiment_bearing_data(exp_numb, 4)
@@ -95,6 +94,20 @@ def save_bearing_trend(exp_numb):
     d = {"amp1":bearing1,"amp2":bearing2,"amp3":bearing3,"amp4":bearing4}
     df = pd.DataFrame(d)
     df.to_csv(file_name)
+
+
+def plot_fft_trend(path):
+    df = pd.read_csv(path)
+    amp1 = df["amp1"].values
+    amp2 = df["amp2"].values
+    amp3 = df["amp3"].values
+    amp4 = df["amp4"].values
+    plt.plot(amp1)
+    plt.plot(amp2)
+    plt.plot(amp3)
+    plt.plot(amp4)
+    plt.legend(["b1","b2","b3","b4"])
+    plt.show()
 
 
 def plot_bearing_fft_trend(file_name,exp_numb,out):
@@ -183,6 +196,9 @@ def plot_bearing_fft_trend(file_name,exp_numb,out):
 
 
 if __name__ == '__main__':
+    path = "experiment1_fft/experiment1_bearing_fft_trend.csv"
+    plot_fft_trend(path)
+    exit()
     exp_numb = 1
     #path = "../data/3rd_test"
     #all_files = get_all_files(path)
