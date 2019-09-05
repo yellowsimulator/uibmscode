@@ -35,7 +35,7 @@ def main(exp_numb, channel, dispersion_index):
         names = ["imf{}".format(k+1) for k in range(m)]
         #d = dict(zip(names,imfs))
         #df = pd.DataFrame(d)
-        save_to_csv("../data/imfs/sample{}_imfs.csv".format(j+1),imfs, names )
+        save_to_csv("../data/imf_bpfo/sample{}_imfs.csv".format(j+1),imfs, names )
     #health_indexes = [get_all_health_index(dispersion_index, samples)]
     #columns_names = ["health_index"]
     #destination_path = "test{}_{}.csv".format(channel,dispersion_index)
@@ -103,6 +103,9 @@ if __name__ == '__main__':
     #exit()
 
     exp_numb = 2; channel = 0; dispersion_index = "iqr"
+
+
+    
     samples = get_experiment_bearing_data(exp_numb, channel)
 
 

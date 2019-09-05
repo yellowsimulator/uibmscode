@@ -11,6 +11,36 @@ def get_imfs(signal):
     imf = decomposer.decompose()
     return imf
 
+def save_imf(exp_numb, channel):
+    samples = get_experiment_bearing_data(exp_numb, channel)
+    for j, sample in enumerate(samples):
+        print("processing sample {}".format(j+1))
+        imfs = get_imfs(sample)
+        m = len(imfs)
+        names = ["imf{}".format(k+1) for k in range(m)]
+        save_to_csv("../data/imf_bpfo/sample{}_imfs.csv".format(j+1),imfs, names )
+
+
+def burst_amplitude():
+    amplitudes = []
+    path = "../data/imf_bpfo/"
+    files = glob("{}/*".format(path))
+    for sample_k, file in enumerate(files):
+        print("processing file {}".format(sample_k+1))
+        df = pd.read_csv(file)
+        columns  = list(df.columns)
+        temp_list = []
+        temp_dict = {}
+        for j, column_name in enumerate(columns):
+            imf = list(df[column_name])
+            decomp = decompose(imf)
+            seasonality = decomp.seasonal
+            col = "slt_of_imf{}".format(j+1)
+            temp_list.append((col,seasonality))
+        temp_dict = dict(temp_list)
+        temp_df = pd.DataFrame(temp_dict)
+        temp_df.to_csv("../data/stl_bpfo/sample{}_stl.csv".format(sample_k))
+
 
 
 def plot_imf(signal):
@@ -25,7 +55,7 @@ def plot_imf(signal):
 
 def get_imf(exp_numb,channel):
     samples = 100#728 #714, 724(4)
-    path = "../data/imfs/sample{}_imfs.csv".format(samples)
+    path = "../data/imf_bpfo/sample{}_imfs.csv".format(samples)
     df = pd.read_csv(path)
     #new_df = df.loc[:,"imf1":"imf4"]
     #new_df.plot()
@@ -57,8 +87,28 @@ def get_imf(exp_numb,channel):
     #plt.show()
 
 
-
+from scipy import signal
 if __name__ == '__main__':
+    samples = 0#728 #714, 724(4)
+    path = "../data/stl_bpfo/sample{}_stl.csv".format(samples)
+    df = pd.read_csv(path)
+
+
+    k = 10 # at k=8, for 900 sample number we get 33.33Hz the machine ro
+    data = df["slt_of_imf{}".format(k)]
+    fs = 12600
+    f,amp = signal.periodogram(data,fs=fs,window="hanning",scaling="spectrum")
+    peaks = signal.find_peaks(amp[:1000])[0]
+    #p = max(f[:300][peaks])
+    #print(p)
+
+    plt.plot(f[:1000],amp[:1000])
+    plt.show()
+
+    exit()
+    #burst_amplitude()
+    exit()
     exp_numb = 2
     channel = 0
-    get_imf(exp_numb,channel)
+    save_imf(exp_numb, channel)
+    #get_imf(exp_numb,channel)
