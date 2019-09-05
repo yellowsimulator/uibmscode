@@ -84,12 +84,13 @@ def get_imf(exp_numb,channel):
     plt.show()
     #plot_imf(signal)
     #plt.plot(data[k])
+
     #plt.show()
 
 
 from scipy import signal
 if __name__ == '__main__':
-    samples = 0#728 #714, 724(4)
+    samples = 983#728 #714, 724(4)
     path = "../data/stl_bpfo/sample{}_stl.csv".format(samples)
     df = pd.read_csv(path)
 
@@ -103,6 +104,9 @@ if __name__ == '__main__':
     #print(p)
 
     plt.plot(f[:1000],amp[:1000])
+    plt.xlabel("Frequency in Hz")
+    plt.ylabel("Amplitude")
+    plt.title("Spectrum of the STL transform of imf number {}".format(k))
     plt.show()
 
     exit()
