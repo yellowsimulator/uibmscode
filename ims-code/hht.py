@@ -18,12 +18,12 @@ def save_imf(exp_numb, channel):
         imfs = get_imfs(sample)
         m = len(imfs)
         names = ["imf{}".format(k+1) for k in range(m)]
-        save_to_csv("../data/imf_bpfo/sample{}_imfs.csv".format(j+1),imfs, names )
+        save_to_csv("../data/imf_bpfi/sample{}_imfs.csv".format(j+1),imfs, names )
 
 
 def burst_amplitude():
     amplitudes = []
-    path = "../data/imf_bpfo/"
+    path = "../data/imf_bpfi/"
     files = glob("{}/*".format(path))
     for sample_k, file in enumerate(files):
         print("processing file {}".format(sample_k+1))
@@ -39,7 +39,7 @@ def burst_amplitude():
             temp_list.append((col,seasonality))
         temp_dict = dict(temp_list)
         temp_df = pd.DataFrame(temp_dict)
-        temp_df.to_csv("../data/stl_bpfo/sample{}_stl.csv".format(sample_k))
+        temp_df.to_csv("../data/stl_bpfi/sample{}_stl.csv".format(sample_k))
 
 
 
@@ -87,27 +87,112 @@ def get_imf(exp_numb,channel):
 
     #plt.show()
 
-
+from heapq import nlargest
 from scipy import signal
-if __name__ == '__main__':
-    samples = 983#728 #714, 724(4)
+
+def bpfo_stl():
+    samples = 800#800 #983#728 #714, 724(4)
     path = "../data/stl_bpfo/sample{}_stl.csv".format(samples)
     df = pd.read_csv(path)
-
-
-    k = 10 # at k=8, for 900 sample number we get 33.33Hz the machine ro
+    path = "../data/2nd_test"
+    files = get_all_files(path)
+    date = get_date_from_file(files[samples]).split('\\')[1]
+    k = 8#10 # at k=8, for 900 sample number we get 33.33Hz the machine ro
     data = df["slt_of_imf{}".format(k)]
-    fs = 12600
-    f,amp = signal.periodogram(data,fs=fs,window="hanning",scaling="spectrum")
+    fs = 12300 # 12600 is good
+    freq,amp = signal.periodogram(data,fs=fs,window="hanning",scaling="spectrum")
     peaks = signal.find_peaks(amp[:1000])[0]
     #p = max(f[:300][peaks])
     #print(p)
+    l = 100
+    new_freq = freq[:1000][peaks]
+    rpm_x = [new_freq[0] for x in range(l) ]
+    rpm_y = np.linspace(0,amp[peaks][0],l)
 
-    plt.plot(f[:1000],amp[:1000])
+    rpm_h1_x = [new_freq[1] for x in range(l) ]
+    rpm_h1_y = np.linspace(0,amp[peaks][1],l)
+
+    rpm_h2_x = [new_freq[2] for x in range(l) ]
+    rpm_h2_y = np.linspace(0,amp[peaks][2],l)
+
+    bpfo_h2_x = [new_freq[13] for x in range(l) ]
+    bpfo_h2_y = np.linspace(0,amp[peaks][13],l)
+
+    bpfo_x = [new_freq[6] for x in range(l) ]
+    bpfo_y = np.linspace(0,amp[peaks][6],l)
+    print(freq[peaks])
+    #exit()
+    plt.plot(freq[:1000],amp[:1000])
+    plt.plot(rpm_x,rpm_y,color="green")
+    #plt.plot(bpfo_x,bpfo_y,color="red")
+    #plt.plot(rpm_h1_x,rpm_h1_y,color="orange")
+    #plt.plot(rpm_h2_x,rpm_h2_y,color="orange")
+    #plt.plot(bpfo_h2_x,bpfo_h2_y,color="yellow")
+    #plt.ylim([0,2e-7])
     plt.xlabel("Frequency in Hz")
-    plt.ylabel("Amplitude")
-    plt.title("Spectrum of the STL transform of imf number {}".format(k))
+    plt.ylabel("PSD[V**2/Hz]")
+    plt.title("Periodogram of STL of imf{} at {}".format(k,date))
+    plt.legend(["Frequency","Shaft rotation speed"])
+    #plt.legend(["Frequency","Shaft rotation speed","BPFO","First shaft harmonic","Second shaft harmonic","BPFO harmonic"])
     plt.show()
+
+
+def bpfi_stl():
+    samples = 1#800 #983#728 #714, 724(4)
+    path = "../data/stl_bpfi/sample{}_stl.csv".format(samples)
+    df = pd.read_csv(path)
+    path = "../data/1st_test"
+    files = get_all_files(path)
+    date = get_date_from_file(files[samples]).split('\\')[1]
+    k = 1#10 # at k=8, for 900 sample number we get 33.33Hz the machine ro
+    data = df["slt_of_imf{}".format(k)]
+    fs = 9000 # 12600 is good
+    freq,amp = signal.periodogram(data,fs=fs,window="hanning",scaling="spectrum")
+    peaks = signal.find_peaks(amp[:1000])[0]
+    #p = max(f[:300][peaks])
+    #print(p)
+    l = 100
+    new_freq = freq[:1000][peaks]
+    rpm_x = [new_freq[0] for x in range(l) ]
+    rpm_y = np.linspace(0,amp[peaks][0],l)
+
+    rpm_h1_x = [new_freq[1] for x in range(l) ]
+    rpm_h1_y = np.linspace(0,amp[peaks][1],l)
+
+    rpm_h2_x = [new_freq[2] for x in range(l) ]
+    rpm_h2_y = np.linspace(0,amp[peaks][2],l)
+
+    bpfi_h2_x = [new_freq[11] for x in range(l) ]
+    bpfi_h2_y = np.linspace(0,amp[peaks][11],l)
+
+    bpfo_x = [new_freq[6] for x in range(l) ]
+    bpfo_y = np.linspace(0,amp[peaks][6],l)
+    print(freq[peaks])
+    #exit()
+    plt.plot(freq[:1000],amp[:1000])
+    #plt.plot(rpm_x,rpm_y,color="green")
+    #plt.plot(bpfo_x,bpfo_y,color="red")
+    #plt.plot(rpm_h1_x,rpm_h1_y,color="orange")
+    #plt.plot(rpm_h2_x,rpm_h2_y,color="orange")
+    plt.plot(bpfi_h2_x,bpfi_h2_y,color="orange")
+    #plt.ylim([0,2e-7])
+    plt.xlabel("Frequency in Hz")
+    plt.ylabel("PSD[V**2/Hz]")
+    plt.title("Periodogram of STL of imf{} at {}".format(k,date))
+    bpfi = round(new_freq[11],1)
+    plt.legend(["Frequency","BPFI ({} Hz)".format(bpfi)])
+    #plt.legend(["Frequency","Shaft rotation speed","BPFO","First shaft harmonic","Second shaft harmonic","BPFO harmonic"])
+    plt.show()
+
+if __name__ == '__main__':
+    bpfi_stl()
+    # for bpfi
+    #exp_numb = 1
+    #channel = 4
+    #save_imf(exp_numb, channel)
+    #burst_amplitude()
+
+    #exit()
 
     exit()
     #burst_amplitude()
